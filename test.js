@@ -3367,7 +3367,7 @@ function 开始猜测(){
     嫌疑人清单.sort(function(干员A,干员B){
         return 干员B.信息熵 - 干员A.信息熵
     })
-    console.log(嫌疑人清单.slice(-10).map(x=>[x.名字,x.信息熵]))
+    console.log(嫌疑人清单.slice(0,5).map(x=>[x.名字,x.信息熵]))
 }
 
 开始猜测()
