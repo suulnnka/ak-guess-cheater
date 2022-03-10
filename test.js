@@ -1,70 +1,3 @@
-<script src="https://unpkg.com/vue@2.6.14/dist/vue.js"></script>
-<script src="https://unpkg.com/element-ui@2.15.7/lib/index.js"></script>
-<head>
-    <meta charset="utf-8"> 
-</head>
-<div id="app">
-<template>
-    <el-row>
-        <el-button type="warning" round v-on:click="清空猜测列表()">清空</el-button>
-    </el-row>
-    <el-row v-for="猜测条件 in 猜测列表">
-        名字
-        <el-select v-model="猜测条件.名字" clearable filterable placeholder="干员" @change="开始猜测()">
-            <el-option
-              v-for="干员 in 干员列表"
-              :key="干员.名字"
-              :label="干员.名字"
-              :value="干员.名字">
-            </el-option>
-        </el-select>
-        稀有度
-        <el-select v-model="猜测条件.稀有度" clearable placeholder="稀有度" @change="开始猜测()">
-            <el-option value="向上">向上</el-option>
-            <el-option value="一致">一致</el-option>
-            <el-option value="向下">向下</el-option>
-        </el-select>
-        阵营
-        <el-select v-model="猜测条件.阵营" clearable placeholder="阵营" @change="开始猜测()">
-            <el-option value="一致">一致</el-option>
-            <el-option value="部分一致">部分一致</el-option>
-            <el-option value="不同">不同</el-option>
-        </el-select>
-        职业
-        <el-select v-model="猜测条件.职业" clearable placeholder="职业" @change="开始猜测()">
-            <el-option value="一致">一致</el-option>
-            <el-option value="部分一致">部分一致</el-option>
-            <el-option value="不同">不同</el-option>
-        </el-select>
-        种族
-        <el-select v-model="猜测条件.种族" clearable placeholder="种族" @change="开始猜测()">
-            <el-option value="一致">一致</el-option>
-            <el-option value="部分一致">部分一致</el-option>
-            <el-option value="不同">不同</el-option>
-        </el-select>
-        画师
-        <el-select v-model="猜测条件.画师" clearable placeholder="画师" @change="开始猜测()">
-            <el-option value="一致">一致</el-option>
-            <el-option value="不同">不同</el-option>
-        </el-select>
-    </el-row>
-    <el-row>
-        {{ 输出信息.信息1 }}
-    </el-row>
-    <el-row>
-        {{ 输出信息.信息2 }}
-    </el-row>
-    <el-row>
-        made by suulnnka
-    </el-row>
-</template>
-</div>
-<style>
-    @import url("https://unpkg.com/element-ui@2.15.7/lib/theme-chalk/index.css");
-    .el-select {width: 130px;}
-</style>
-<script>
-
 let 干员列表 = [
     {
         "职业": "术师",
@@ -3098,20 +3031,15 @@ let 猜测列表 = [
     {名字:'',稀有度:'',阵营:'',职业:'',种族:'',画师:''},
 ]
 
-let 输出信息 = {信息1: '',信息2: ''}
-
 function 排除嫌疑人(嫌疑人清单,猜测条件){
     let 数据完整标志 = true
-    let 空项数 = 0
     for(let 项名 in 猜测条件){
         if(猜测条件[项名] == ''){
             数据完整标志 = false
-            空项数 = 空项数 + 1
         }
     }
     if(数据完整标志 == false){
-        if(空项数 == 6) return
-        return false
+        return
     }
 
     let 干员
@@ -3119,10 +3047,6 @@ function 排除嫌疑人(嫌疑人清单,猜测条件){
         if(临时干员.名字 == 猜测条件.名字){
             干员 = 临时干员
         }
-    }
-    if(!干员){
-        嫌疑人清单.splice(0)
-        return
     }
 
     if(猜测条件.稀有度 == "向上"){
@@ -3341,6 +3265,14 @@ function 排除嫌疑人(嫌疑人清单,猜测条件){
     
 }
 
+function 清空猜测列表 (){
+    for(let 猜测条件 of 猜测列表){
+        for(let 字段名 in 猜测条件){
+            猜测条件[字段名] = ''
+        }
+    }
+}
+
 function 有嫌疑吗(嫌疑人,干员,稀有度,阵营,职业,种族,画师){
     if(稀有度=="向上" && 嫌疑人.稀有度<=干员.稀有度) return false
     if(稀有度=="一致" && 嫌疑人.稀有度!=干员.稀有度) return false
@@ -3406,73 +3338,36 @@ function 查找嫌疑人数量(嫌疑人清单,干员,稀有度,阵营,职业,�
     return 嫌疑人数量
 }
 
-    var Main = {
-    data() {
-      return {
-        干员列表,
-        猜测列表,
-        输出信息
-      }
-    },
-    methods: {
-        开始猜测: function(){
-            let 嫌疑人清单 = []
-            for(let 干员 of 干员列表){
-                嫌疑人清单.push(干员)
-            }
+function 开始猜测(){
 
-            for(let 猜测条件 of 猜测列表){
-                if(排除嫌疑人(嫌疑人清单,猜测条件) === false){
-                    return
-                }
-            }
-
-            for(let 干员 of 嫌疑人清单){
-                let 信息熵 = 0
-                for(let 稀有度 of ["向上","一致","向下"])
-                for(let 阵营 of ["不同","部分一致","一致"])
-                for(let 职业 of ["不同","部分一致","一致"])
-                for(let 种族 of ["不同","部分一致","一致"])
-                for(let 画师 of ["不同","一致"]){
-                    let 嫌疑人数量 = 查找嫌疑人数量(嫌疑人清单,干员,稀有度,阵营,职业,种族,画师)
-                    if(嫌疑人数量 != 0){
-                        let 概率 = 嫌疑人数量 / ( 嫌疑人清单.length - 1 )
-                        信息熵 = 信息熵 - 概率 * Math.log2(概率)
-                    }
-                }
-                干员.信息熵 = 信息熵
-            }
-
-            嫌疑人清单.sort(function(干员A,干员B){
-                return 干员B.信息熵 - 干员A.信息熵
-            })
-            
-            if(嫌疑人清单.length == 0){
-                输出信息.信息1 = "出错"
-            }else{
-                输出信息.信息1 = "最大怀疑人:"+嫌疑人清单[0].名字
-                if(嫌疑人清单.length > 1){
-                    输出信息.信息1 = 输出信息.信息1 + ',' + 嫌疑人清单[1].名字
-                }
-                if(嫌疑人清单.length > 2){
-                    输出信息.信息1 = 输出信息.信息1 + ',' + 嫌疑人清单[2].名字
-                }
-            }
-            输出信息.信息2 = "嫌疑人数量:"+嫌疑人清单.length
-        },
-        清空猜测列表: function(){
-            for(let 猜测条件 of 猜测列表){
-                for(let 字段名 in 猜测条件){
-                    猜测条件[字段名] = ''
-                }
-            }
-            this.开始猜测()
-        }
-    },
-    created() {
-        this.开始猜测()
+    let 嫌疑人清单 = []
+    for(let 干员 of 干员列表){
+        嫌疑人清单.push(干员)
     }
-  }
-var Ctor = Vue.extend(Main)
-new Ctor().$mount('#app')
-</script>
+
+    for(let 猜测条件 of 猜测列表){
+        排除嫌疑人(嫌疑人清单,猜测条件)
+    }
+
+    for(let 干员 of 嫌疑人清单){
+        let 信息熵 = 0
+        for(let 稀有度 of ["向上","一致","向下"])
+        for(let 阵营 of ["不同","部分一致","一致"])
+        for(let 职业 of ["不同","部分一致","一致"])
+        for(let 种族 of ["不同","部分一致","一致"])
+        for(let 画师 of ["不同","一致"]){
+            let 嫌疑人数量 = 查找嫌疑人数量(嫌疑人清单,干员,稀有度,阵营,职业,种族,画师)
+            if(嫌疑人数量 != 0){
+                let 概率 = 嫌疑人数量 / ( 嫌疑人清单.length - 1 )
+                信息熵 = 信息熵 - 概率 * Math.log2(概率)
+            }
+        }
+        干员.信息熵 = 信息熵
+    }
+    嫌疑人清单.sort(function(干员A,干员B){
+        return 干员B.信息熵 - 干员A.信息熵
+    })
+    console.log(嫌疑人清单.slice(-10).map(x=>[x.名字,x.信息熵]))
+}
+
+开始猜测()
